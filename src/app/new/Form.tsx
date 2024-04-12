@@ -1,21 +1,23 @@
 "use client";
 import { Frame } from "@/types";
-import networks from "@unlock-protocol/networks";
 import { createFrame } from "./actions";
 import { useFormState, useFormStatus } from "react-dom";
-import { useAccount } from "wagmi";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+const networks = {
+  mainnet: { name: "Solana Mainnet (Beta)" }
+};
 
 export const Form = () => {
   const [showTokenId, setShowTokenId] = useState(false);
   const { push } = useRouter();
-  const { address } = useAccount();
+  const wallet = useAnchorWallet();
 
   // @ts-expect-error
   const [frame, formAction] = useFormState<Partial<Frame>>(createFrame, {
-    author: address,
+    author: wallet?.publicKey,
     frame: {},
   });
   const status = useFormStatus();
@@ -37,7 +39,9 @@ export const Form = () => {
         (they are ERC721 contracts on steroids).
       </p>
       <form action={formAction} className="form-control	flex">
-        <input type="hidden" name="author" value={address} />
+        {wallet && 
+        <div>
+        <input type="hidden" name="author" value={wallet.publicKey.toBase58()} />
 
         <div className="flex flex-col gap-4">
           <div className="flex flex-col">
@@ -114,7 +118,7 @@ export const Form = () => {
                   setShowTokenId(evt.target.value === "ERC1155");
                 }}
               >
-                {["ERC721", "ERC20", "ERC1155"].map((contractType) => {
+                {["SPL", "NFt"].map((contractType) => {
                   return (
                     <option key={contractType} value={contractType}>
                       {contractType}
@@ -145,11 +149,10 @@ export const Form = () => {
             </div>
           </div>
           <div className="flex flex-col">
-            <label htmlFor="body">Contract address</label>
+            <label htmlFor="body">SPL Address / NFT verified collection address</label>
             <input
-              pattern="^0x[a-fA-F0-9]{40}$"
               className="input "
-              placeholder="0x..."
+              placeholder="..."
               name="frame.gate.contract"
               required
             />
@@ -170,7 +173,8 @@ export const Form = () => {
           >
             Submit
           </button>
-        </div>
+          </div>
+          </div>}
       </form>
     </div>
   );

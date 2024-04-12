@@ -1,52 +1,53 @@
-"use client";
-import { WagmiProvider, createConfig } from "wagmi";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ConnectKitProvider, getDefaultConfig } from "connectkit";
-import { AppConfig } from "../AppConfig";
-import networks from "@unlock-protocol/networks";
-import { defineChain } from "viem";
+import React, { FC, useMemo } from 'react';
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets';
+import {
+    WalletModalProvider,
+    WalletDisconnectButton,
+    WalletMultiButton
+} from '@solana/wallet-adapter-react-ui';
+import { clusterApiUrl } from '@solana/web3.js';
 
-const config = createConfig(
-  getDefaultConfig({
-    // Your dApps chains
-    // @ts-expect-error
-    chains: Object.keys(networks).map((id: string) => {
-      const network = networks[id];
-      return defineChain({
-        id: parseInt(id),
-        name: network.name,
-        nativeCurrency: network.nativeCurrency,
-        rpcUrls: {
-          default: {
-            http: network.publicProvider,
-          },
-        },
-      });
-    }),
-    transports: {
-      // // RPC URL for each chain
-      // [mainnet.id]: http(
-      //   `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`
-      // ),
-    },
+// Default styles that can be overridden by your app
+require('@solana/wallet-adapter-react-ui/styles.css');
 
-    // Required App Info
-    appName: AppConfig.name,
+export const Web3Provider: FC = ({ children }) => {
+    // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
+    const network = WalletAdapterNetwork.Devnet;
 
-    // Optional App Info
-    appDescription: AppConfig.description,
-    appUrl: AppConfig.siteUrl, // your app's url
-  })
-);
+    // You can also provide a custom RPC endpoint.
+    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
-const queryClient = new QueryClient();
+    const wallets = useMemo(
+        () => [
+            /**
+             * Wallets that implement either of these standards will be available automatically.
+             *
+             *   - Solana Mobile Stack Mobile Wallet Adapter Protocol
+             *     (https://github.com/solana-mobile/mobile-wallet-adapter)
+             *   - Solana Wallet Standard
+             *     (https://github.com/anza-xyz/wallet-standard)
+             *
+             * If you wish to support a wallet that supports neither of those standards,
+             * instantiate its legacy wallet adapter here. Common legacy adapters can be found
+             * in the npm package `@solana/wallet-adapter-wallets`.
+             */
+            new UnsafeBurnerWalletAdapter(),
+        ],
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [network]
+    );
 
-export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <ConnectKitProvider>{children}</ConnectKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  );
+    return (
+        <ConnectionProvider endpoint={endpoint}>
+            <WalletProvider wallets={wallets} autoConnect>
+                <WalletModalProvider>
+                    <WalletMultiButton />
+                    <WalletDisconnectButton />
+                    {children}
+                </WalletModalProvider>
+            </WalletProvider>
+        </ConnectionProvider>
+    );
 };

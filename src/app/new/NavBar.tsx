@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { AppConfig } from "../AppConfig";
-import { ConnectKitButton } from "connectkit";
 
 export const Navbar = () => {
   return (
@@ -74,9 +73,6 @@ export const Navbar = () => {
         </ul>
       </div> */}
 
-      <div className="navbar-end">
-        <ConnectKitButton />{" "}
-      </div>
     </div>
   );
 };

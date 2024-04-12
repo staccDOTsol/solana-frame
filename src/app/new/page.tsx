@@ -1,5 +1,5 @@
 "use client";
-import { useAccount } from "wagmi";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { Form } from "./Form";
 
 const NotConnected = () => {
@@ -11,12 +11,12 @@ const NotConnected = () => {
 };
 
 export default function NewFrame() {
-  const { address } = useAccount();
+  const wallet = useAnchorWallet();
 
   return (
     <>
-      {!address && <NotConnected />}
-      {address && <Form />}
+      {!wallet && <NotConnected />}
+      {wallet?.publicKey && <Form />}
     </>
   );
 }
