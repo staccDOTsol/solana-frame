@@ -6,7 +6,7 @@ import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-const networks = {
+const networks: any = {
   mainnet: { name: "Solana Mainnet (Beta)" }
 };
 
