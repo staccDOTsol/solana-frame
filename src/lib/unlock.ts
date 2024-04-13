@@ -27,8 +27,8 @@ export const meetsRequirement = async (user: string, gate: any) => {
 
   for (const { account } of parsedTokenAccounts.value) {
     const accountInfo = account.data.parsed.info;
-    if (accountInfo.tokenAmount.uiAmount) {
-      balance += accountInfo.tokenAmount.uiAmount;
+    if (accountInfo.tokenAmount.amount) {
+      balance += parseFloat(accountInfo.tokenAmount.ammount);
     }
   }
 
