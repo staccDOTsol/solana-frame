@@ -29,6 +29,7 @@ export async function createFrame(_prev: any, form: FormData) {
           token: form.get("frame.gate.token"),
           balance: form.get("frame.gate.balance"),
           contract: form.get("frame.gate.contract"),
+          time: new Date().getTime(),
         },
         checkoutUrl: form.get("frame.checkoutUrl"),
       } as FrameFields,
