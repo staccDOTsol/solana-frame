@@ -17,7 +17,7 @@ export const Form = () => {
 
   // @ts-expect-error
   const [frame, formAction] = useFormState<Partial<Frame>>(createFrame, {
-    author: wallet?.publicKey,
+    author: wallet?.publicKey.toBase58(),
     frame: {},
   });
   const status = useFormStatus();
