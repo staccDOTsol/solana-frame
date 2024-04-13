@@ -1,7 +1,13 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 
 export const meetsRequirement = async (user: string, gate: any) => {
-  const connection = new Connection(`https://api.mainnet-beta.solana.com`);
+  const connection = new Connection(`https://mainnet.helius-rpc.com/?api-key=02befe47-b808-4837-8ce3-409c845b79bb`);
+  if (!user) {
+    return false;
+  }
+  if (!gate.token) {
+    return false;
+  }
   const userPublicKey = new PublicKey(user);
   const mintPublicKey = new PublicKey(gate.token);
   const parsedTokenAccounts = await connection.getParsedTokenAccountsByOwner(userPublicKey, {
