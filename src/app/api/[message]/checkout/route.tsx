@@ -1,69 +1,46 @@
 import { getUserProfile, validateMessage } from "@/lib/farcaster";
 import { getMessage } from "@/lib/messages";
 
-export async function POST(
-  request: Request,
-  { params }: { params: { message: string } }
-) {
-  const body = await request.json();
-  const { trustedData } = body;
+  export async function POST(
+    request: Request,
+    { params }: { params: { message: string } }
+  ) {
+    try {
+      // Validate the message parameter
+      const isValidMessage = validateMessage(params.message);
+      if (!isValidMessage) {
+        return new Response("Invalid message format", { status: 400 });
+      }
+  
+      // Retrieve the message details
+      const messageDetails = await getMessage(params.message);
+      if (!messageDetails) {
+        return new Response("Message not found", { status: 404 });
+      }
+  
+      // Get user profile associated with the message
+      const userProfile = await getUserProfile(messageDetails.author);
+      if (!userProfile) {
+        return new Response("User profile not found", { status: 404 });
+      }
+  
+     
 
-  if (!trustedData) {
-    return new Response("Missing trustedData", { status: 441 });
+  
+      // Return a success response
+      return new Response(JSON.stringify({ success: true, message: "Checkout successful" }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      // Handle any errors that occur during the process
+      return new Response(JSON.stringify({ success: false, message: "An error occurred during the checkout process" }), {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    }
   }
-  const fcMessage = await validateMessage(trustedData.messageBytes);
-  if (!fcMessage.valid) {
-    return new Response("Invalid message", { status: 442 });
-  }
-  const checkoutRedirect = new URL(request.url);
-
-  try {
-    // Get the message URL so we can then redirect to it!
-    const posterProfile = await getUserProfile(
-      fcMessage.message.data.frameActionBody?.castId?.fid
-    );
-    const userName = posterProfile.messages
-      .sort((a: any, b: any) => a.data.timestamp > b.data.timestamp)
-      .find((m: any) => {
-        return (
-          m.data.type === "MESSAGE_TYPE_USER_DATA_ADD" &&
-          m.data.userDataBody.type === "USER_DATA_TYPE_USERNAME"
-        );
-      }).data.userDataBody.value;
-    checkoutRedirect.searchParams.append(
-      "cast",
-      `https://warpcast.com/${userName}/${fcMessage.message.data.frameActionBody?.castId.hash}`
-    );
-  } catch (error) {
-    console.error(
-      `Could not build the redirect URL for ${JSON.stringify(
-        fcMessage.message.data,
-        null,
-        2
-      )}`
-    );
-    console.error(error);
-  }
-  return Response.redirect(checkoutRedirect.toString(), 302);
-}
-
-export async function GET(
-  request: Request,
-  { params }: { params: { message: string } }
-) {
-  const message = await getMessage(params.message);
-  if (!message) {
-    return new Response("Message not found", { status: 404 });
-  }
-
-  const checkoutUrl = new URL(message.frame.checkoutUrl);
-
-  const u = new URL(request.url);
-  const cast = u.searchParams.get("cast");
-  if (cast) {
-    // We have a cast URL to redirect to!
-    checkoutUrl.searchParams.append("redirect-url", cast!);
-  }
-
-  return Response.redirect(checkoutUrl.toString(), 302);
-}
