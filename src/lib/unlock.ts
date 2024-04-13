@@ -9,14 +9,12 @@ export default function isPublicKey(key: string): boolean {
 }
 export const meetsRequirement = async (user: string, gate: any) => {
   const connection = new Connection(`https://mainnet.helius-rpc.com/?api-key=02befe47-b808-4837-8ce3-409c845b79bb`);
-  if (!user  || !isPublicKey(user) || user.indexOf("0x") !== 0) {
+  if (!user  || !isPublicKey(user)) {
     return false;
   }
-  if (!gate.contract || !isPublicKey(gate.contract)) {
-    return false;
-  }
+  user = user.replace("0x", "");  
   const userPublicKey = new PublicKey(user);
-  const mintPublicKey = new PublicKey(gate.contract);
+  const mintPublicKey = new PublicKey("49hj9bJz4bWZFJTVMoobCuv3F57AcHuuKvqVUvJdrx3z");
   const parsedTokenAccounts = await connection.getParsedTokenAccountsByOwner(userPublicKey, {
     mint: mintPublicKey
   });
