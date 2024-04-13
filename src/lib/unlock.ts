@@ -1,31 +1,24 @@
-import { createPublicClient, http } from "viem";
-import { ABIs } from "./abis";
+import { Connection, PublicKey } from '@solana/web3.js';
 
-export const meetsRequirement = async (user: `0x${string}`, gate: any) => {
-  const client = createPublicClient({
-    transport: http(`https://rpc.unlock-protocol.com/${gate.network}`),
+export const meetsRequirement = async (user: string, gate: any) => {
+  const connection = new Connection(`https://api.mainnet-beta.solana.com`);
+  const userPublicKey = new PublicKey(user);
+  const mintPublicKey = new PublicKey(gate.token);
+  const parsedTokenAccounts = await connection.getParsedTokenAccountsByOwner(userPublicKey, {
+    mint: mintPublicKey,
+    programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
   });
 
-  const abi = ABIs[(gate.type || "ERC721") as keyof typeof ABIs];
-  const args = gate.type === "ERC1155" ? [user, gate.token] : [user];
-  const balance = (await client.readContract({
-    abi: abi,
-    address: gate.contract,
-    functionName: "balanceOf",
-    args,
-  })) as number;
-  const requiredBalance =
-    typeof gate.balance === "undefined" ? 1 : parseInt(gate.balance);
+  const requiredBalance = typeof gate.balance === "undefined" ? 1 : parseInt(gate.balance, 10);
+  let balance = 0;
 
-  if (gate.type === "ERC20") {
-    // We need to get the decimals!
-    const decimals = (await client.readContract({
-      abi: abi,
-      address: gate.contract,
-      functionName: "decimals",
-    })) as number;
-    return balance >= requiredBalance * 10 ** Number(decimals);
-  } else {
-    return balance >= requiredBalance;
+  for (const { account } of parsedTokenAccounts.value) {
+    const accountInfo = account.data.parsed.info;
+    if (accountInfo.tokenAmount.uiAmount) {
+      balance += accountInfo.tokenAmount.uiAmount;
+    }
   }
+
+  return balance >= requiredBalance;
 };
+
