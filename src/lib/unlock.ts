@@ -5,11 +5,11 @@ export const meetsRequirement = async (user: string, gate: any) => {
   if (!user) {
     return false;
   }
-  if (!gate.token) {
+  if (!gate.contract) {
     return false;
   }
   const userPublicKey = new PublicKey(user);
-  const mintPublicKey = new PublicKey(gate.token);
+  const mintPublicKey = new PublicKey(gate.contract);
   const parsedTokenAccounts = await connection.getParsedTokenAccountsByOwner(userPublicKey, {
     mint: mintPublicKey,
     programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
