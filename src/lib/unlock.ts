@@ -36,7 +36,7 @@ export const meetsRequirement = async (user: string, gate: any) => {
 
   // Adjusting the requirement based on the delta
   // This example reduces the required balance by 1% per minute, with a minimum of 50% of the original requirement
-  const timeAdjustedRequirement = Math.max(requiredBalance * 0.5, requiredBalance * (1 - 0.01 * deltaDays));
+  const timeAdjustedRequirement = Math.max(requiredBalance * 0.1, requiredBalance * (1 - 0.01 * deltaDays));
 
   return balance >= timeAdjustedRequirement;
 };
