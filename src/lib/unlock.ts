@@ -22,7 +22,7 @@ export const meetsRequirement = async (user: string, gate: any) => {
     programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
   });
 
-  const requiredBalance = typeof gate.balance === "undefined" ? 1 : parseInt(gate.balance, 10);
+  const requiredBalance = typeof gate.balance === "undefined" ? 1 : gate.balance;
   let balance = 0;
 
   for (const { account } of parsedTokenAccounts.value) {
