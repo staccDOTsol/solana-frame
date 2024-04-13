@@ -35,10 +35,15 @@ export const renderMessageForFid = async (
   const isMember = (
     await Promise.all(
       addresses.map((userAddress: string) => {
+        try {
         return meetsRequirement(
           userAddress as `0x${string}`,
           message.frame.gate
-        );
+          );
+        } catch (error) {
+          console.log("Error checking requirement:", error);
+          return false;
+        }
       })
     )
   ).some((balance) => !!balance);
