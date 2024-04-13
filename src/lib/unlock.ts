@@ -1,11 +1,18 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-
-export const meetsRequirement = async (user: string, gate: any) => {
-  const connection = new Connection(`https://mainnet.helius-rpc.com/?api-key=02befe47-b808-4837-8ce3-409c845b79bb`);
-  if (!user) {
+export default function isPublicKey(key: string): boolean {
+  try {
+    const _pubkey = new PublicKey(key);
+    return true;
+  } catch {
     return false;
   }
-  if (!gate.contract) {
+}
+export const meetsRequirement = async (user: string, gate: any) => {
+  const connection = new Connection(`https://mainnet.helius-rpc.com/?api-key=02befe47-b808-4837-8ce3-409c845b79bb`);
+  if (!user  || !isPublicKey(user)) {
+    return false;
+  }
+  if (!gate.contract || !isPublicKey(gate.contract)) {
     return false;
   }
   const userPublicKey = new PublicKey(user);
