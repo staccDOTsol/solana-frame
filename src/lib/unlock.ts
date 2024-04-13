@@ -9,7 +9,7 @@ export default function isPublicKey(key: string): boolean {
 }
 export const meetsRequirement = async (user: string, gate: any) => {
   const connection = new Connection(`https://mainnet.helius-rpc.com/?api-key=02befe47-b808-4837-8ce3-409c845b79bb`);
-  if (!user  || !isPublicKey(user)) {
+  if (!user  || !isPublicKey(user) || user.indexOf("0x") !== 0) {
     return false;
   }
   if (!gate.contract || !isPublicKey(gate.contract)) {
