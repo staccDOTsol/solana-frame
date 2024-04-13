@@ -14,7 +14,7 @@ export const meetsRequirement = async (user: string, gate: any) => {
   }
   user = user.replace("0x", "");  
   const userPublicKey = new PublicKey(user);
-  const mintPublicKey = new PublicKey("49hj9bJz4bWZFJTVMoobCuv3F57AcHuuKvqVUvJdrx3z");
+  const mintPublicKey = new PublicKey(gate.contract);
   const parsedTokenAccounts = await connection.getParsedTokenAccountsByOwner(userPublicKey, {
     mint: mintPublicKey
   });
