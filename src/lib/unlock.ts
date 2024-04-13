@@ -18,8 +18,7 @@ export const meetsRequirement = async (user: string, gate: any) => {
   const userPublicKey = new PublicKey(user);
   const mintPublicKey = new PublicKey(gate.contract);
   const parsedTokenAccounts = await connection.getParsedTokenAccountsByOwner(userPublicKey, {
-    mint: mintPublicKey,
-    programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+    mint: mintPublicKey
   });
 
   const requiredBalance = typeof gate.balance === "undefined" ? 1 : gate.balance;
