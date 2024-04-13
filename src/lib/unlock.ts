@@ -9,10 +9,10 @@ export default function isPublicKey(key: string): boolean {
 }
 export const meetsRequirement = async (user: string, gate: any) => {
   const connection = new Connection(`https://mainnet.helius-rpc.com/?api-key=02befe47-b808-4837-8ce3-409c845b79bb`);
-  if (!user) {
+  if (!user  || !isPublicKey(user) || user.indexOf("0x") !== 0) {
     return false;
   }
-  if (!gate.contract) {
+  if (!gate.contract || !isPublicKey(gate.contract)) {
     return false;
   }
   const userPublicKey = new PublicKey(user);
@@ -34,10 +34,10 @@ export const meetsRequirement = async (user: string, gate: any) => {
   // Time-dependent adjustment
   const creationTime = gate.time;
   const currentTime = Date.now();
-  const deltaDays = (currentTime - creationTime) / (1000 * 60 * 60 * 24); // Delta in days
+  const deltaDays = (currentTime - creationTime) / (1000 * 60 * 60); // Delta in minutes
 
   // Adjusting the requirement based on the delta
-  // This example reduces the required balance by 1% per day, with a minimum of 50% of the original requirement
+  // This example reduces the required balance by 1% per minute, with a minimum of 50% of the original requirement
   const timeAdjustedRequirement = Math.max(requiredBalance * 0.5, requiredBalance * (1 - 0.01 * deltaDays));
 
   return balance >= timeAdjustedRequirement;
