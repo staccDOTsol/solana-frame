@@ -37,7 +37,7 @@ export const renderMessageForFid = async (
       addresses.map((userAddress: string) => {
         try {
         return meetsRequirement(
-          userAddress as `0x${string}`,
+          userAddress as `${string}`,
           message.frame.gate
           );
         } catch (error) {
