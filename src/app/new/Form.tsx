@@ -14,7 +14,6 @@ export const Form = () => {
   const [showTokenId, setShowTokenId] = useState(false);
   const { push } = useRouter();
   const wallet = useAnchorWallet();
-
   // @ts-expect-error
   const [frame, formAction] = useFormState<Partial<Frame>>(createFrame, {
     author: wallet?.publicKey.toBase58(),
@@ -167,12 +166,16 @@ export const Form = () => {
             />
           </div>
           <button
+            onClick={() => {
+              console.log(frame);
+            }}
             disabled={status.pending}
             className="btn btn-neutral"
             type="submit"
           >
             Submit
           </button>
+          
           </div>
           </div>}
       </form>
